@@ -9,7 +9,7 @@ class VideoProcessor:
         self.mp_pose = mp.solutions.pose
         self.pose = self.mp_pose.Pose(
             static_image_mode = False,
-            model_complexity = 1,
+            model_complexity = 2,
             enable_segmentation = False,
             min_detection_confidence = 0.5,
             min_tracking_confidence = 0.5
@@ -43,6 +43,11 @@ class VideoProcessor:
         fps = cap.get(cv2.CAP_PROP_FPS)
         if fps == 0: fps = 30
 
+        v_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        v_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+        aspect_ratio = v_width / v_height if v_height > 0 else 1.0
+
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
@@ -58,6 +63,7 @@ class VideoProcessor:
                 frame_data = {
                     "frame": frame_index,
                     "timestamp_sec": frame_index / fps,
+                    "aspect_ratio": aspect_ratio,
                     "points": {
                         "left_shoulder": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_SHOULDER),
                         "left_elbow": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_ELBOW),
@@ -68,7 +74,13 @@ class VideoProcessor:
                         "left_hip": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_HIP),
                         "right_hip": self._extract_landmark(lms, self.mp_pose.PoseLandmark.RIGHT_HIP),
                         "left_foot": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_FOOT_INDEX),
-                        "right_foot": self._extract_landmark(lms, self.mp_pose.PoseLandmark.RIGHT_FOOT_INDEX)
+                        "right_foot": self._extract_landmark(lms, self.mp_pose.PoseLandmark.RIGHT_FOOT_INDEX),
+                        "left_ankle": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_ANKLE),
+                        "right_ankle": self._extract_landmark(lms, self.mp_pose.PoseLandmark.RIGHT_ANKLE),
+                        "left_heel": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_HEEL),
+                        "right_heel": self._extract_landmark(lms, self.mp_pose.PoseLandmark.RIGHT_HEEL),
+                        "left_knee": self._extract_landmark(lms, self.mp_pose.PoseLandmark.LEFT_KNEE),
+                        "right_knee": self._extract_landmark(lms, self.mp_pose.PoseLandmark.RIGHT_KNEE)
                     }
                 }
                 video_data.append(frame_data)

@@ -1,0 +1,18 @@
+# Środowisko wirtualne i cache Pythona
+backend/.venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Frontend (React)
+frontend/node_modules/
+frontend/dist/
+frontend/.eslintcache
+
+# Ustawienia edytora
+.vscode/
+
+# Zmienne środowiskowe (Klucze API)
+.env
+*.env
