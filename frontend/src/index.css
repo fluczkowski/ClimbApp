@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sand-100: #f7e9c7;
+  --color-sand-200: #f3ddc3;
+
+  --color-rock-300: #bfa788;
+  --color-rock-800: #5d3a22;
+
+  --color-ocean-500: #5F9EA0;
+}
+
+body {
+  background-color: var(--color-sand-100);
+}
