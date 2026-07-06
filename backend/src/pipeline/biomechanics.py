@@ -2,20 +2,40 @@ import numpy as np
 from scipy.spatial import Delaunay
 
 class BiomechanicsEngine:
+    """
+    A physics and biomechanics engine for calculating climbing metrics.
+    
+    This class processes raw positional data to extract advanced climbing 
+    statistics such as Center of Mass (CoM), velocity, time under tension, 
+    wall distance, and left/right body symmetry.
+    
+    Attributes:
+        df (pd.DataFrame): The DataFrame containing positional tracking data.
+        ar (float): Video aspect ratio used for normalizing x/y distances.
+    """
     def __init__(self, df):
         self.df = df
         self.ar = self.df["aspect_ratio"].iloc[0] if "aspect_ratio" in self.df.columns else 1.0
 
     def calculate_center_of_mass(self):
-        print("Obliczanie środka ciężkości (CoM)...")
+        """
+        Calculates the Center of Mass (CoM) based on the climber's hips.
+        
+        Returns:
+            pd.DataFrame: Updated DataFrame with 'com_x' and 'com_y' columns.
+        """
         self.df["com_x"] = (self.df["left_hip_x"] + self.df["right_hip_x"]) / 2.0
         self.df["com_y"] = (self.df["left_hip_y"] + self.df["right_hip_y"]) / 2.0
 
         return self.df
     
     def calculate_velocity(self):
-        print("Obliczanie prędkości ruchu i wygładzenie szumów...")
-
+        """
+        Calculates movement velocity of the Center of Mass and applies smoothing.
+        
+        Returns:
+            pd.DataFrame: Updated DataFrame with raw and smoothed velocity.
+        """
         if "com_x" not in self.df.columns:
             self.calculate_center_of_mass()
 
@@ -29,6 +49,15 @@ class BiomechanicsEngine:
         return self.df
     
     def analyze_movement_phases(self, threshold = 0.15):
+        """
+        Classifies frames into active movement ('Ruch') or resting ('Spoczynek') phases.
+        
+        Args:
+            threshold (float): Velocity threshold above which the climber is considered moving.
+            
+        Returns:
+            pd.DataFrame: Updated DataFrame with movement phase classifications.
+        """
         if "com_velocity_smooth" not in self.df.columns:
             self.calculate_velocity()
         
@@ -38,8 +67,12 @@ class BiomechanicsEngine:
         return self.df
     
     def analyze_z_depth(self):
-        print("Obliczanie odległości bioder od ściany (Oś Z)...")
-
+        """
+        Estimates the perpendicular distance of the hips from the climbing wall (Z-axis).
+        
+        Returns:
+            pd.DataFrame: Updated DataFrame containing hip-to-wall distances.
+        """
         expected_limbs = ["left_wrist", "right_wrist", "left_ankle", "right_ankle"]
         distances = []
 
@@ -76,8 +109,12 @@ class BiomechanicsEngine:
         return self.df
     
     def analyze_balance(self):
-        print("Obliczanie wielokąta podparcia i balansu...")
-
+        """
+        Determines if the climber's Center of Mass is within their polygon of support.
+        
+        Returns:
+            pd.DataFrame: Updated DataFrame with boolean 'is_off_balance' flags.
+        """
         if "com_x" not in self.df.columns:
             self.calculate_center_of_mass()
 
@@ -111,8 +148,12 @@ class BiomechanicsEngine:
         return self.df
     
     def analyze_symmetry(self):
-        print("Obliczanie asymetrii pracy rąk...")
-
+        """
+        Calculates the Euclidean distance traveled by each hand to evaluate symmetry.
+        
+        Returns:
+            pd.DataFrame: Updated DataFrame with left and right hand distance metrics.
+        """
         expected = ["left_wrist_x", "left_wrist_y", "right_wrist_x", "right_wrist_y"]
         if not all(col in self.df.columns for col in expected):
             self.df["left_hand_dist"] = 0
@@ -130,8 +171,12 @@ class BiomechanicsEngine:
         return self.df
     
     def analyze_reach_and_dynos(self):
-        print("Obliczanie zasięgu i skoków (Dyno)...")
-
+        """
+        Calculates the maximum span between hands and detects dynamic movements (dynos).
+        
+        Returns:
+            pd.DataFrame: Updated DataFrame with 'hands_distance' and 'is_dyno' flags.
+        """
         if "left_wrist_x" in self.df.columns and "right_wrist_x" in self.df.columns:
             dx = (self.df["left_wrist_x"] - self.df["right_wrist_x"]) * self.ar
             dy = self.df["left_wrist_y"] - self.df["right_wrist_y"]
@@ -148,8 +193,15 @@ class BiomechanicsEngine:
         return self.df
     
     def calibrate_to_meters(self, climber_height_m = 1.70):
-        print(f"Kalibracja wymiarów wideo dla wzrostu: {climber_height_m} m...")
-
+        """
+        Calculates a scale factor to convert pixel distances into real-world meters.
+        
+        Args:
+            climber_height_m (float): Real-world height of the climber in meters.
+            
+        Returns:
+            float: The calculated scale factor mapping pixels to meters.
+        """
         if "nose_y" in self.df.columns and "left_ankle_y" in self.df.columns:
             stretch_left = (self.df["left_ankle_y"] - self.df["nose_y"]).abs()
             stretch_right = (self.df["right_ankle_y"] - self.df["nose_y"]).abs()

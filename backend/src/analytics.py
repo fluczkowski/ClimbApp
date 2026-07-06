@@ -6,6 +6,17 @@ from src.pipeline.filters import TrajectoryFilter
 from src.pipeline.biomechanics import BiomechanicsEngine
 
 class DataAnalyzer:
+    """
+    High-level analytics orchestrator for climbing data.
+    
+    This class ties together the data loading, filtering, and biomechanics 
+    pipeline to compute the final climbing performance metrics.
+    
+    Attributes:
+        json_path (str): Path to the source JSON tracking data.
+        df (pd.DataFrame): The fully processed and analyzed DataFrame.
+        bio (BiomechanicsEngine): Instance of the physics engine.
+    """
     def __init__(self, json_path):
         self.json_path = json_path 
         loader = DataLoader(self.json_path)
@@ -25,7 +36,16 @@ class DataAnalyzer:
         self.df = self.bio.df   
     
     def get_movement_summary(self, climber_height_m = 1.70):
-          
+        """
+        Aggregates frame-by-frame data into a unified performance summary payload.
+        
+        Args:
+            climber_height_m (float): The climber's real-world height for scale calibration.
+            
+        Returns:
+            dict: A comprehensive dictionary containing aggregated metrics 
+                  (e.g., TUT, Dyno count) and localized frame data for frontend rendering.
+        """
         total_frames = len(self.df)
         moving_frames = self.df["is_moving"].sum()
         static_frames = total_frames - moving_frames
@@ -114,6 +134,12 @@ class DataAnalyzer:
         }
     
     def get_summary(self):
+        """
+        Provides a brief metadata overview of the processed dataset.
+        
+        Returns:
+            dict: Basic metadata including frame count, duration, and column count.
+        """
         return {
             "total_frames": len(self.df),
             "duration_sec": round(self.df["timestamp"].max(), 2),
@@ -121,9 +147,10 @@ class DataAnalyzer:
         }
     
     def plot_velocity_chart(self):
-        
-        print("Generowanie wykresu...")
-
+        """
+        Generates and saves a matplotlib plot showing the climber's movement 
+        velocity and active/resting phases over time.
+        """
         plt.figure(figsize = (12, 6))
         plt.plot(self.df["timestamp"], self.df["com_velocity_smooth"], label = "Prędkość (Średnia krocząca)", color = "#1f77b4", linewidth = 2.5)
         plt.axhline(y = 0.15, color = "red", linestyle = "--", label = "Próg ruchu (0.15)")
@@ -136,7 +163,6 @@ class DataAnalyzer:
         plt.grid(True, linestyle = ":", alpha = 0.7)
         plt.tight_layout()
         plt.savefig("wykres_plynnosci.png", dpi = 300)
-        print("Wykres zapisano w folderze głównym jako 'wykres_plynnosci.png'.")
         plt.show()
 
     

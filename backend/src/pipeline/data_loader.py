@@ -2,11 +2,23 @@ import json
 import pandas as pd
 
 class DataLoader:
+    """
+    Data ingestion module for parsing MediaPipe JSON outputs.
+    
+    Attributes:
+        json_path (str): The file path to the raw JSON file containing pose landmarks.
+    """
     def __init__(self, json_path):
         self.json_path = json_path
         
     def load_and_flatten(self):
-        print(f"Wczytywanie danych z: {self.json_path}")
+        """
+        Loads the nested JSON file and flattens it into a 2D tabular structure.
+        
+        Returns:
+            pd.DataFrame: Flattened DataFrame where each row is a frame and columns 
+                          represent specific landmark coordinates (e.g., 'left_wrist_x').
+        """
         with open(self.json_path, "r", encoding = "utf-8") as f:
             raw_data = json.load(f)
 
@@ -27,6 +39,4 @@ class DataLoader:
             
             flat_data.append(row)
 
-        return pd.DataFrame(flat_data)
-        pass
-    
+        return pd.DataFrame(flat_data)    

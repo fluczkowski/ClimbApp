@@ -5,6 +5,12 @@ import json
 import os
 
 class VideoProcessor:
+    """
+    Computer Vision module for extracting human pose landmarks from video.
+    
+    Wraps Google's MediaPipe Pose estimation to process MP4 files, extract 
+    3D skeletal keypoints, and export the tracking data to JSON format.
+    """
     def __init__(self):
         self.mp_pose = mp.solutions.pose
         self.pose = self.mp_pose.Pose(
@@ -18,6 +24,15 @@ class VideoProcessor:
 
     @staticmethod
     def calculate_angle(a, b, c):
+        """
+        Calculates the angle between three skeletal coordinates.
+        
+        Args:
+            a, b, c (list/tuple): [x, y] coordinates of three points where 'b' is the vertex.
+            
+        Returns:
+            float: The calculated angle in degrees.
+        """
         a, b, c = np.array(a[:2]), np.array(b[:2]), np.array(c[:2])
         radians = np.arctan2(c[1] - b[1], c[0] - b[0]) - np.arctan2(a[1] - b[1], a[0] - b[0])
         angle = np.abs(radians * 180.0 / np.pi)
@@ -27,8 +42,10 @@ class VideoProcessor:
         return angle
     
     def _extract_landmark(self, landmarks, landmark_enum):
+        """
+        Helper method to securely extract x, y, z, and visibility from a MediaPipe landmark.
+        """
         point = landmarks[landmark_enum.value]
-
         return {
             "x": point.x,
             "y": point.y,
@@ -37,6 +54,17 @@ class VideoProcessor:
         }
 
     def process_video(self, video_source = 0, show_video = False, output_json = "climb_data.json"):
+        """
+        Processes a video file frame-by-frame and writes pose landmarks to a JSON file.
+        
+        Args:
+            video_source (str/int): Path to the video file or 0 for webcam input.
+            show_video (bool): If True, renders OpenCV playback with skeleton overlay.
+            output_json (str): Target path for saving the extracted landmark data.
+            
+        Returns:
+            list: A list of dictionaries containing frame-by-frame landmark positions.
+        """
         cap = cv2.VideoCapture(video_source)
         video_data = []
         frame_index = 0
@@ -105,5 +133,4 @@ class VideoProcessor:
         with open(output_json, "w", encoding = "utf-8") as f:
             json.dump(video_data, f, indent = 4)
 
-        print(f"Dane wyeksportowane do: {os.path.abspath(output_json)}")        
         return video_data

@@ -2,12 +2,26 @@ import numpy as np
 import pandas as pd
 
 class TrajectoryFilter:
+    """
+    Signal processing module for smoothing climbing trajectory data.
+    
+    Applies noise reduction, outlier removal, and linear interpolation 
+    to correct tracking errors from MediaPipe pose estimation.
+    
+    Attributes:
+        df (pd.DataFrame): Raw DataFrame containing tracking points.
+    """
     def __init__(self, df):
         self.df = df
 
     def smooth(self):
-        print("Filtrowanie szumów i wygładzanie trajektorii...")
-
+        """
+        Executes the smoothing pipeline: removes outliers, interpolates missing 
+        frames, and applies a rolling mean to reduce coordinate jitter.
+        
+        Returns:
+            pd.DataFrame: The smoothed and interpolated DataFrame.
+        """
         cols_to_smooth = [col for col in self.df.columns if col.endswith("_x") or col.endswith("_y")]
         
         for col in cols_to_smooth:

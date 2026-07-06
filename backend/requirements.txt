@@ -2,7 +2,10 @@ fastapi
 uvicorn
 python-multipart
 supabase
-opencv-python
-mediapipe
-numpy
+opencv-python-headless
+mediapipe==0.10.21
+numpy==1.26.4
 python-dotenv
+pandas
+scipy
+matplotlib

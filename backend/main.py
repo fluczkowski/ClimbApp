@@ -1,3 +1,7 @@
+"""
+Main entry point for the Boulder AI backend application.
+Exposes RESTful endpoints via FastAPI for video analysis and database operations.
+"""
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -26,6 +30,9 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
+    """
+    Health check endpoint to verify API status.
+    """
     return {"message": "API analizatora jest online."}
 
 @app.post("/analyze")
@@ -34,7 +41,18 @@ async def analyze_video(
     climber_height: float = Form(1.70),
     user_id: str = Form(None)
 ):
-    print(f"\n[API] Otrzymano plik: {file.filename}")
+    """
+    Processes an uploaded climbing video through the AI vision and biomechanics pipeline.
+    
+    Args:
+        file (UploadFile): The MP4 video file to be analyzed.
+        climber_height (float): User's height in meters for physical calibration.
+        user_id (str): Optional Supabase UUID of the logged-in user.
+        
+    Returns:
+        dict: The complete analytics payload containing aggregate summary stats 
+              and frame-by-frame positional data for UI rendering.
+    """
     temp_video_path = f"temp_{file.filename}"
     with open(temp_video_path, "wb") as buffer:
         buffer.write(await file.read())
@@ -42,7 +60,6 @@ async def analyze_video(
     json_output_path = f"data_{file.filename}.json"
 
     try:
-        print("[API] Start analizy wizyjnej...")
         processor = VideoProcessor()
         processor.process_video(
             video_source = temp_video_path,
@@ -50,15 +67,12 @@ async def analyze_video(
             output_json = json_output_path
         )
 
-        print("[API] Start analityki danych...")
         analyzer = DataAnalyzer(json_path = json_output_path)
         stats = analyzer.get_movement_summary(climber_height_m = climber_height)
         chart_data = analyzer.df[["timestamp", "com_velocity_smooth", "movement_phase"]].fillna(0).to_dict(orient = "records")
 
         if os.path.exists(temp_video_path): os.remove(temp_video_path)
         if os.path.exists(json_output_path): os.remove(json_output_path)
-
-        print("[API] Analiza zakończona sukcesem!")
 
         return {
             "status": "success",
@@ -73,13 +87,22 @@ async def analyze_video(
         print(f"[API] BŁĄD: {str(e)}")
         return {"status": "error", "message": str(e)}
     
-    if __name__ == "__main__":
-        uvicorn.run("main:app", host = "127.0.0.1", port = 8000, reload = True)
-
 @app.post("/save-analysis")
 async def save_analysis(data: dict):
+    """
+    Persists the processed climbing analytics payload into the Supabase database.
+    
+    Args:
+        data (dict): The analytics payload containing user_id and session metrics.
+        
+    Returns:
+        dict: Success status and the newly created database record ID.
+    """
     try:
         response = supabase.table("analyses").insert(data).execute()
         return {"status": "success", "id": response.data[0]["id"]}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+    
+if __name__ == "__main__":
+        uvicorn.run("main:app", host = "127.0.0.1", port = 8000, reload = True)

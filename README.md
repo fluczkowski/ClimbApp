@@ -32,6 +32,15 @@ The core of this project is a custom data processing pipeline built with Python,
 * **IndexedDB & SessionStorage:** Advanced browser state management for caching heavy video files and preserving ML analysis results without backend re-fetching.
 * **Supabase (PostgreSQL):** Secure user authentication (OAuth) and persistent storage for historical climb analytics.
 
+## Database Setup (Supabase)
+
+This project relies on Supabase for authentication and database management. To set up the environment locally:
+
+1. Create a new project on [Supabase](https://supabase.com/).
+2. Navigate to the **SQL Editor** in your Supabase dashboard.
+3. Copy the entire contents of the `schema.sql` file located in the root of this repository.
+4. Run the query to automatically generate the required tables (`profiles`, `analyses`) and OAuth triggers.
+
 ## ML Pipeline Structure
 The backend is highly modularized, demonstrating a clear separation of concerns typical for production-ready AI systems:
 ```text
