@@ -47,13 +47,15 @@ The backend is highly modularized, demonstrating a clear separation of concerns 
 
 ```text
 backend/
-├── pipeline/
-│   ├── biomechanics.py   # Center of mass and physics calculations
-│   ├── data_loader.py    # Video ingestion and frame extraction
-│   └── filters.py        # Signal smoothing for trajectory data
-├── analytics.py          # High-level metric aggregation (TUT, Dynos)
-├── vision.py             # OpenCV/MediaPipe inference wrappers
-└── main.py               # FastAPI application and endpoint routing
+├── src/
+│   ├── pipeline/
+│   │   ├── biomechanics.py   # Center of mass and physics calculations
+│   │   ├── data_loader.py    # Video ingestion and frame extraction
+│   │   └── filters.py        # Signal smoothing for trajectory data
+│   ├── analytics.py          # High-level metric aggregation (TUT, Dynos)
+│   └── vision.py             # OpenCV/MediaPipe inference wrappers
+├── main.py                   # FastAPI application and endpoint routing
+└── requirements.txt          # Python project dependencies
 ```
 
 ---
