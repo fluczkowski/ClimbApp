@@ -23,6 +23,8 @@ export default function AnalysisView({ session }: AnalysisViewProps) {
   const [showOverlay, setShowOverlay] = useState<boolean>(true);
   const [showSkeleton, setShowSkeleton] = useState<boolean>(true);
 
+  const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState<boolean>(() => sessionStorage.getItem("isAnalysisSaved") === "true");
 
@@ -72,7 +74,7 @@ export default function AnalysisView({ session }: AnalysisViewProps) {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/save-analysis", {
+      const response = await fetch(`${API_URL}/save-analysis`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dbPayload),
@@ -116,7 +118,7 @@ export default function AnalysisView({ session }: AnalysisViewProps) {
     if (session?.user?.id) formData.append("user_id", session.user.id);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/analyze", {
+      const response = await fetch(`${API_URL}/analyze`, {
         method: "POST",
         body: formData,
       });
