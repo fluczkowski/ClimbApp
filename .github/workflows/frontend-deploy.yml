@@ -1,0 +1,40 @@
+name: BoulderAI Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobranie najnowszego kodu z GitHuba
+        uses: actions/checkout@v4
+
+      - name: Logowanie do chmury Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Logowanie do ACR
+        run: az acr login --name acrboulderaifl
+
+      - name: Budowanie i wysłanie obrazu Docker (Frontend)
+        run: |
+          docker build -t acrboulderaifl.azurecr.io/frontend-ui:${{ github.sha }} ./frontend
+          docker push acrboulderaifl.azurecr.io/frontend-ui:${{ github.sha }}
+        
+        name: Konfiguracja dostępu do klastra AKS
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: rg-boulderai-dev
+          cluster-name: aks-boulderai-dev
+
+        name: Wdrożenie nowej wersji na produkcję
+        run: |
+          kubectl set image deployment/frontend-ui frontend-ui=acrboulderaifl.azurecr.io/frontend-ui:${{ github.sha }}
