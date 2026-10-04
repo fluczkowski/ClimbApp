@@ -33,7 +33,7 @@ jobs:
           resource-group: rg-boulderai-dev
           cluster-name: aks-boulderai-dev
 
-      - name: Wdrożenie nowej wersji na produkcję
+      - name: Wdrożenie nowej wersji na produkcję!
 
         run: |
           kubectl set image deployment/backend-api backend-api=acrboulderaifl.azurecr.io/backend-api:{{ github.sha }}
