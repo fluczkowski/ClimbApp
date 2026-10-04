@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend-api
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      containers:
+      - name: backend-api
+        image: acrboulderaifl.azurecr.io/backend-api:v1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SUPABASE_URL
+          value: "https://eisfzepfsywzbtmvkibp.supabase.co"
+        - name: SUPABASE_KEY
+          value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpc2Z6ZXBmc3l3emJ0bXZraWJwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzI0NjMxOCwiZXhwIjoyMDk4ODIyMzE4fQ.zX5dUfmsNhV9SxwKTQRiYMJHbQr_IFCs2WyD_UYOCvo"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-api-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: backend-api
+  ports:
+  - port: 80
+    targetPort: 8000
