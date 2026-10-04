@@ -38,4 +38,4 @@ jobs:
       - name: Wdrożenie nowej wersji na produkcję!
 
         run: |
-          kubectl set image deployment/backend-api backend-api=acrboulderaifl.azurecr.io/backend-api:{{ github.sha }}
+          kubectl set image deployment/backend-api backend-api=acrboulderaifl.azurecr.io/backend-api:${{ github.sha }}
