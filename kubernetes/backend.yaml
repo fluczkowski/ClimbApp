@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: backend-api
-        image: acrboulderaifl.azurecr.io/backend-api:v1
+        #image: acrboulderaifl.azurecr.io/backend-api:v1
+        image: local-backend:v2
         ports:
         - containerPort: 8000
         env:
@@ -30,7 +31,8 @@ kind: Service
 metadata:
   name: backend-api-service
 spec:
-  type: LoadBalancer
+  #type: LoadBalancer
+  type: ClusterIP
   selector:
     app: backend-api
   ports:

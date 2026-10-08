@@ -8,4 +8,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    allowedHosts: ['app.boulderai.local'],
+    hmr: {
+      clientPort: 80
+    }
+  }
 })

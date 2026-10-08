@@ -14,15 +14,11 @@ spec:
     spec:
       containers:
       - name: frontend-ui
-        image: acrboulderai.azurecr.io/frontend-ui:v1
+        #image: acrboulderai.azurecr.io/frontend-ui:v1
+        image: local-frontend:v6
         ports:
-        - containerPort: 5173
-        env:
-        - name: VITE_SUPABASE_URL
-          value: "https://eisfzepfsywzbtmvkibp.supabase.co"
-        - name: VITE_SUPABASE_ANON_KEY
-          value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpc2Z6ZXBmc3l3emJ0bXZraWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNDYzMTgsImV4cCI6MjA5ODgyMjMxOH0.uqgsvGWHsNRYuaMRoyXKnxUaYJd_n24nZ4AuhGdpKvE"
-
+        - containerPort: 80
+        
 ---
 
 apiVersion: v1
@@ -30,9 +26,10 @@ kind: Service
 metadata:
   name: frontend-ui-service
 spec:
-  type: LoadBalancer
+  #type: LoadBalancer
+  type: ClusterIP
   selector:
     app: frontend-ui
   ports:
   - port: 80
-    targetPort: 5173
+    targetPort: 80

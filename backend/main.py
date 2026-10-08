@@ -20,9 +20,14 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI(title = "Boulder AI", version = "1.0")
 
+origins = [
+    "http://localhost:5173",
+    "http://app.boulderai.local"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["*"],
+    allow_origins = origins,
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"],
